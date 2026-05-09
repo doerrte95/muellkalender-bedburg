@@ -214,11 +214,15 @@ export default function Home() {
     const sub = await registration?.pushManager.getSubscription();
     if (!sub) return;
 
-    await fetch('/api/push/test', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ endpoint: sub.endpoint })
-    });
+    alert('Gleich geht es los! Sperre jetzt dein Handy. Die Test-Nachricht kommt in genau 5 Sekunden.');
+
+    setTimeout(async () => {
+      await fetch('/api/push/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ endpoint: sub.endpoint })
+      });
+    }, 5000);
   };
 
   if (!hydrated) return null;

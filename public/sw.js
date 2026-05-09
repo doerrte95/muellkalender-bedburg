@@ -18,7 +18,9 @@ self.addEventListener('push', function(event) {
     const options = {
       body: data.body,
       icon: data.icon || '/icon-192x192.png',
+      badge: '/icon-192x192.png', // Small white icon for Android status bar
       vibrate: [100, 50, 100],
+      requireInteraction: false,
       data: {
         dateOfArrival: Date.now(),
         primaryKey: '2'
