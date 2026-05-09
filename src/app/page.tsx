@@ -109,12 +109,12 @@ export default function Home() {
           const match = dateStr.match(/\d+/);
           if (match) {
             const dateObj = new Date(parseInt(match[0], 10));
-            const abfallartName = c.Abfuhrplan?.GefaesstarifArt?.Abfallart?.Name;
+            const rawName = c.Abfuhrplan?.GefaesstarifArt?.Abfallart?.Name;
             
-            if (abfallartName) {
+            if (rawName) {
               events.push({
                 Datum: dateObj.toISOString(),
-                AbfallartName: abfallartName
+                AbfallartName: mapWasteName(rawName)
               });
             }
           }
@@ -424,6 +424,16 @@ export default function Home() {
       </main>
     </div>
   );
+}
+
+function mapWasteName(name: string) {
+  if (!name) return 'Unbekannt';
+  const n = name.toLowerCase();
+  if (n.includes('lvp') || n.includes('gelb') || n.includes('leicht')) return 'Gelbe Tonne';
+  if (n.includes('rest')) return 'Restmüll';
+  if (n.includes('bio') || n.includes('grün')) return 'Biomüll';
+  if (n.includes('papier') || n.includes('papp')) return 'Papier';
+  return name;
 }
 
 function getWasteColor(type: string) {
