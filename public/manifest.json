@@ -1,6 +1,6 @@
 {
   "name": "Müllkalender Bedburg",
-  "short_name": "Müll Bedburg",
+  "short_name": "Müllkalender",
   "description": "Individueller Abfallkalender für Bedburg (Rath)",
   "start_url": "/",
   "display": "standalone",
