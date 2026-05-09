@@ -1,0 +1,20 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model PushSubscription {
+  id           String   @id @default(cuid())
+  endpoint     String   @unique
+  p256dh       String
+  auth         String
+  streetId     String
+  houseNr      String
+  reminderDays Int      // 0 = am selben Tag, 1 = 1 Tag vorher, etc.
+  reminderTime String   // z.B. "18:00"
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}

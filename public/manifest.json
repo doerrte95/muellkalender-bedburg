@@ -1,0 +1,21 @@
+{
+  "name": "Müllkalender Bedburg",
+  "short_name": "Müll Bedburg",
+  "description": "Individueller Abfallkalender für Bedburg (Rath)",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0c",
+  "theme_color": "#3b82f6",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
