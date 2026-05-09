@@ -443,10 +443,10 @@ function mapWasteName(name: string) {
 }
 
 function getWasteColor(type: string) {
-  if (type.includes('Rest')) return '#424242'; // Drekopf Restmüll
-  if (type.includes('Bio') || type.includes('Grün')) return '#2e7d32'; // Drekopf Biotonne / Grünschnitt
-  if (type.includes('Papier')) return '#1976d2'; // Drekopf Altpapier
-  if (type.includes('Gelb') || type.includes('LVP') || type.includes('Leicht')) return '#fbc02d'; // Schönmackers Gelbe Tonne
+  if (type.includes('Rest')) return '#757575'; // Grau
+  if (type.includes('Bio') || type.includes('Grün')) return '#795548'; // Braun
+  if (type.includes('Papier')) return '#1976d2'; // Blau
+  if (type.includes('Gelb') || type.includes('LVP') || type.includes('Leicht')) return '#fbc02d'; // Gelb
   return '#9ca3af';
 }
 
