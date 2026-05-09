@@ -152,6 +152,30 @@ export default function Home() {
   const subscribeToPush = async (streetIdStr?: string, houseNrStr?: string) => {
     setIsPushLoading(true);
     try {
+      if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+        alert('Push-Benachrichtigungen werden von diesem Browser leider nicht unterstützt.');
+        setIsPushLoading(false);
+        return;
+      }
+
+      // Check iOS Standalone requirement
+      const isIOS = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
+      
+      if (isIOS && !isStandalone) {
+        alert('Auf dem iPhone/iPad müssen Sie die App zuerst über das Teilen-Symbol "Zum Home-Bildschirm" hinzufügen, um Benachrichtigungen zu erhalten.');
+        setIsPushLoading(false);
+        return;
+      }
+
+      // Explicitly request permission
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') {
+        alert('Sie haben Benachrichtigungen blockiert. Bitte in den Einstellungen Ihres Geräts zulassen.');
+        setIsPushLoading(false);
+        return;
+      }
+
       const registration = await navigator.serviceWorker.register('/sw.js');
       await navigator.serviceWorker.ready;
 
