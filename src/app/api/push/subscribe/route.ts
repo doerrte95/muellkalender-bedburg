@@ -2,7 +2,11 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
+const getPrisma = () => {
+  const globalAny: any = global;
+  if (!globalAny.prisma) globalAny.prisma = new PrismaClient();
+  return globalAny.prisma;
+};
 
 export async function POST(req: Request) {
   try {
@@ -15,7 +19,7 @@ export async function POST(req: Request) {
 
     const { endpoint, keys } = subscription;
 
-    // Speichern oder aktualisieren
+    const prisma = getPrisma();
     await prisma.pushSubscription.upsert({
       where: { endpoint },
       update: {

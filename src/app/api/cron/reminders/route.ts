@@ -2,9 +2,14 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import webpush from 'web-push';
 import { PrismaClient } from '@prisma/client';
-import { isSameDay, addDays, parseISO } from 'date-fns';
 
-const prisma = new PrismaClient();
+const getPrisma = () => {
+  const globalAny: any = global;
+  if (!globalAny.prisma) globalAny.prisma = new PrismaClient();
+  return globalAny.prisma;
+};
+
+import { isSameDay, addDays, parseISO } from 'date-fns';
 
 webpush.setVapidDetails(
   process.env.VAPID_SUBJECT || 'mailto:test@example.com',
@@ -20,6 +25,7 @@ export async function GET(req: Request) {
     //   return new NextResponse('Unauthorized', { status: 401 });
     // }
 
+    const prisma = getPrisma();
     const subscriptions = await prisma.pushSubscription.findMany();
     if (subscriptions.length === 0) {
       return NextResponse.json({ success: true, message: 'No subscriptions found' });
@@ -33,7 +39,7 @@ export async function GET(req: Request) {
     const currentHourString = `${localHour.toString().padStart(2, '0')}:00`;
 
     // Wir filtern Abos, die in dieser Stunde eine Erinnerung wollen
-    const subscriptionsToProcess = subscriptions.filter(sub => {
+    const subscriptionsToProcess = subscriptions.filter((sub: any) => {
       // Vereinfacht: Cron läuft jede Stunde, wir triggern wenn die Stunde (z.B. "18:00") übereinstimmt
       return sub.reminderTime.startsWith(localHour.toString().padStart(2, '0'));
     });

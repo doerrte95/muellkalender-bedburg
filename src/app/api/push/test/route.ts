@@ -3,7 +3,11 @@ import { NextResponse } from 'next/server';
 import webpush from 'web-push';
 import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
+const getPrisma = () => {
+  const globalAny: any = global;
+  if (!globalAny.prisma) globalAny.prisma = new PrismaClient();
+  return globalAny.prisma;
+};
 
 webpush.setVapidDetails(
   process.env.VAPID_SUBJECT || 'mailto:test@example.com',
@@ -19,6 +23,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Endpoint required' }, { status: 400 });
     }
 
+    const prisma = getPrisma();
     const subscription = await prisma.pushSubscription.findUnique({
       where: { endpoint }
     });
