@@ -86,62 +86,47 @@ export default function Home() {
     }
   }, [view, selectedStreet, houseNr, hydrated]);
 
-  const HOLIDAYS_2026: Record<string, string> = {
-    '2026-01-01': 'Neujahr',
-    '2026-04-03': 'Karfreitag',
-    '2026-04-06': 'Ostermontag',
-    '2026-05-01': 'Tag der Arbeit',
-    '2026-05-14': 'Christi Himmelfahrt',
-    '2026-05-25': 'Pfingstmontag',
-    '2026-06-04': 'Fronleichnam',
-    '2026-12-25': '1. Weihnachtstag',
-    '2026-12-26': '2. Weihnachtstag'
-  };
-
-  const SCHEDULE_CONFIG = [
-    { type: 'REST_BIO', types: ['Restmüll', 'Biotonne'], start: '2026-01-02', interval: 14 },
-    { type: 'YELLOW', types: ['Gelbe Tonne'], start: '2026-01-07', interval: 28 },
-    { type: 'PAPER', types: ['Altpapier'], start: '2026-01-21', interval: 28 }
-  ];
-
   async function loadCollections() {
     if (!selectedStreet || !houseNr) return;
     setLoading(true);
-    
-    // Simulate API delay for UI consistency
-    await new Promise(r => setTimeout(r, 400));
-    
-    const events: CollectionEvent[] = [];
-    const year = new Date().getFullYear();
-    
-    SCHEDULE_CONFIG.forEach(config => {
-        let currentDate = new Date(config.start);
-        while (currentDate.getFullYear() <= year) {
-            config.types.forEach(wasteType => {
-                let adjustedDate = new Date(currentDate);
-                const weekDay = adjustedDate.getDay();
+    try {
+      const year = new Date().getFullYear();
+      const expandQuery = "%24expand=Abfuhrplan%2CAbfuhrplan%2FGefaesstarifArt%2FAbfallart%2CAbfuhrplan%2FGefaesstarifArt%2FVolumenObj";
+      const orderQuery = "%24orderby=Abfuhrplan%2FGefaesstarifArt%2FAbfallart%2FName%2CAbfuhrplan%2FGefaesstarifArt%2FVolumenObj%2FVolumenWert";
+      
+      // Bedburg is orteId=1. We use selectedOrtsteil from the state.
+      const targetUrl = `https://buerger-portal-bedburg.azurewebsites.net/api/AbfuhrtermineAbJahr?${expandQuery}&${orderQuery}&orteId=1&strassenId=${selectedStreet.StrassenId}&ortsteil='${encodeURIComponent(selectedOrtsteil)}'&hausNr='${encodeURIComponent(houseNr)}'&jahr=${year}`;
 
-                Object.keys(HOLIDAYS_2026).forEach(hDate => {
-                    const h = new Date(hDate);
-                    const hDay = h.getDay();
-                    const diffDays = (adjustedDate.getTime() - h.getTime()) / (1000 * 60 * 60 * 24);
-                    
-                    if (diffDays >= 0 && diffDays <= 6 && hDay <= weekDay && hDay !== 0) {
-                        adjustedDate.setDate(adjustedDate.getDate() + 1);
-                    }
-                });
-
-                events.push({
-                    Datum: adjustedDate.toISOString(),
-                    AbfallartName: wasteType
-                });
-            });
-            currentDate.setDate(currentDate.getDate() + config.interval);
-        }
-    });
-
-    setCollections(events);
-    setLoading(false);
+      const response = await fetch(`/api/proxy?url=${encodeURIComponent(targetUrl)}`);
+      const data = await response.json();
+      
+      const results = data.d?.results || data.d || data.value || data || [];
+      const events: CollectionEvent[] = [];
+      
+      if (Array.isArray(results)) {
+        results.forEach((c: any) => {
+          const dateStr = c.Termin || '';
+          const match = dateStr.match(/\d+/);
+          if (match) {
+            const dateObj = new Date(parseInt(match[0], 10));
+            const abfallartName = c.Abfuhrplan?.GefaesstarifArt?.Abfallart?.Name;
+            
+            if (abfallartName) {
+              events.push({
+                Datum: dateObj.toISOString(),
+                AbfallartName: abfallartName
+              });
+            }
+          }
+        });
+      }
+      
+      setCollections(events);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   }
 
 
@@ -443,9 +428,9 @@ export default function Home() {
 
 function getWasteColor(type: string) {
   if (type.includes('Rest')) return '#424242'; // Drekopf Restmüll
-  if (type.includes('Bio')) return '#2e7d32'; // Drekopf Biotonne
+  if (type.includes('Bio') || type.includes('Grün')) return '#2e7d32'; // Drekopf Biotonne / Grünschnitt
   if (type.includes('Papier')) return '#1976d2'; // Drekopf Altpapier
-  if (type.includes('Gelb') || type.includes('LVP')) return '#fbc02d'; // Schönmackers Gelbe Tonne
+  if (type.includes('Gelb') || type.includes('LVP') || type.includes('Leicht')) return '#fbc02d'; // Schönmackers Gelbe Tonne
   return '#9ca3af';
 }
 
