@@ -112,10 +112,16 @@ export default function Home() {
             const rawName = c.Abfuhrplan?.GefaesstarifArt?.Abfallart?.Name;
             
             if (rawName) {
-              events.push({
-                Datum: dateObj.toISOString(),
-                AbfallartName: mapWasteName(rawName)
-              });
+              const mappedName = mapWasteName(rawName);
+              const dateIso = dateObj.toISOString();
+              
+              // Deduplicate: Check if this exact waste type already exists on this exact day
+              if (!events.find(e => e.Datum === dateIso && e.AbfallartName === mappedName)) {
+                events.push({
+                  Datum: dateIso,
+                  AbfallartName: mappedName
+                });
+              }
             }
           }
         });
