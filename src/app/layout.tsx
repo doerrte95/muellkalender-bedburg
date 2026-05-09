@@ -5,11 +5,18 @@ export const metadata: Metadata = {
   title: "Müllkalender Bedburg",
   description: "Dein digitaler Abfallkalender für Bedburg",
   manifest: "/manifest.json",
+  icons: {
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/icon-192x192.png",
+  },
 };
 
 export const viewport = {
   themeColor: "#0a0a0c",
 };
+
+import InstallPrompt from '@/components/InstallPrompt';
 
 export default function RootLayout({
   children,
@@ -20,6 +27,7 @@ export default function RootLayout({
     <html lang="de">
       <body>
         {children}
+        <InstallPrompt />
       </body>
     </html>
   );
