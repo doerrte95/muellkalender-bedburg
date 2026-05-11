@@ -26,8 +26,8 @@ export async function POST(req: Request) {
     await webpush.sendNotification(subscription, payload);
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error sending test push:', error);
-    return NextResponse.json({ error: 'Failed to send test push' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to send test push', details: error?.message || String(error) }, { status: 500 });
   }
 }

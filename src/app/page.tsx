@@ -217,11 +217,20 @@ export default function Home() {
     alert('Gleich geht es los! Sperre jetzt dein Handy. Die Test-Nachricht kommt in genau 5 Sekunden.');
 
     setTimeout(async () => {
-      await fetch('/api/push/test', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subscription: sub })
-      });
+      try {
+        const res = await fetch('/api/push/test', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ subscription: sub })
+        });
+        
+        if (!res.ok) {
+          const errData = await res.json();
+          alert('Backend-Fehler beim Senden des Pushs: ' + JSON.stringify(errData));
+        }
+      } catch (err) {
+        alert('Netzwerkfehler beim Senden des Test-Pushs: ' + String(err));
+      }
     }, 5000);
   };
 
