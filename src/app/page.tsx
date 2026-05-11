@@ -220,7 +220,7 @@ export default function Home() {
       await fetch('/api/push/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ endpoint: sub.endpoint })
+        body: JSON.stringify({ subscription: sub })
       });
     }, 5000);
   };

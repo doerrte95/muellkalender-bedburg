@@ -1,13 +1,7 @@
 export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import webpush from 'web-push';
-import { PrismaClient } from '@prisma/client';
 
-const getPrisma = () => {
-  const globalAny: any = global;
-  if (!globalAny.prisma) globalAny.prisma = new PrismaClient();
-  return globalAny.prisma;
-};
 
 webpush.setVapidDetails(
   process.env.VAPID_SUBJECT || 'mailto:test@example.com',
@@ -17,28 +11,11 @@ webpush.setVapidDetails(
 
 export async function POST(req: Request) {
   try {
-    const { endpoint } = await req.json();
-
-    if (!endpoint) {
-      return NextResponse.json({ error: 'Endpoint required' }, { status: 400 });
-    }
-
-    const prisma = getPrisma();
-    const subscription = await prisma.pushSubscription.findUnique({
-      where: { endpoint }
-    });
+    const { subscription } = await req.json();
 
     if (!subscription) {
-      return NextResponse.json({ error: 'Subscription not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Subscription required' }, { status: 400 });
     }
-
-    const pushSubscription = {
-      endpoint: subscription.endpoint,
-      keys: {
-        p256dh: subscription.p256dh,
-        auth: subscription.auth
-      }
-    };
 
     const payload = JSON.stringify({
       title: 'Test Erinnerung',
@@ -46,7 +23,7 @@ export async function POST(req: Request) {
       icon: '/icon-192x192.png'
     });
 
-    await webpush.sendNotification(pushSubscription, payload);
+    await webpush.sendNotification(subscription, payload);
 
     return NextResponse.json({ success: true });
   } catch (error) {
