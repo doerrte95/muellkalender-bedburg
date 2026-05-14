@@ -23,7 +23,9 @@ export async function POST(req: Request) {
       icon: '/icon-192x192.png'
     });
 
-    await webpush.sendNotification(subscription, payload);
+    await webpush.sendNotification(subscription, payload, {
+      urgency: 'high'
+    });
 
     return NextResponse.json({ success: true });
   } catch (error: any) {

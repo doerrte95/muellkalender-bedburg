@@ -103,7 +103,9 @@ export async function GET(req: Request) {
           };
 
           try {
-            await webpush.sendNotification(pushSubscription, payload);
+            await webpush.sendNotification(pushSubscription, payload, {
+              urgency: 'high'
+            });
             notificationsSent++;
           } catch (error) {
             console.error(`Failed to send to ${sub.endpoint}:`, error);
