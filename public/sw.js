@@ -19,8 +19,10 @@ self.addEventListener('push', function(event) {
       body: data.body,
       icon: data.icon || '/icon-192x192.png',
       badge: '/icon-192x192.png', // Small white icon for Android status bar
-      vibrate: [100, 50, 100],
-      requireInteraction: false,
+      vibrate: [200, 100, 200, 100, 200], // Stronger vibration often triggers heads-up
+      requireInteraction: true, // Keep it visible until dismissed
+      tag: 'muell-reminder-' + Date.now(), // Unique tag or just 'muell-reminder'
+      renotify: true, // Forces an alert/banner even if one is already showing
       data: {
         dateOfArrival: Date.now(),
         primaryKey: '2'
