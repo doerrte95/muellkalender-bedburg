@@ -4,10 +4,11 @@ import { useState, useEffect } from 'react';
 import { CollectionEvent, Street } from '@/lib/api';
 import { format, isAfter, parseISO, startOfDay } from 'date-fns';
 import { de } from 'date-fns/locale';
-import { Trash2, MapPin, Truck } from 'lucide-react';
+import { Trash2, MapPin, Truck, CalendarDays, BookA } from 'lucide-react';
 import CalendarView from '@/components/CalendarView';
 import WeeklyView from '@/components/WeeklyView';
 import YearlyView from '@/components/YearlyView';
+import MuellAbc from '@/components/MuellAbc';
 
 export default function Home() {
   const [streets, setStreets] = useState<Street[]>([]);
@@ -26,6 +27,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [hydrated, setHydrated] = useState(false);
   const [view, setView] = useState<'wizard' | 'main'>('wizard');
+  const [activeTab, setActiveTab] = useState<'calendar' | 'abc'>('calendar');
   
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isPushLoading, setIsPushLoading] = useState(false);
@@ -337,8 +339,10 @@ export default function Home() {
   const upcoming = nextCollections[0];
 
   return (
-    <div className="container-slim fade-in">
-      <header className="flex items-center justify-between bg-white rounded-xl p-4 shadow-sm mb-6">
+    <>
+    {activeTab === 'calendar' ? (
+      <div className="container-slim fade-in pb-24">
+        <header className="flex items-center justify-between bg-white rounded-xl p-4 shadow-sm mb-6 mt-4">
         <div>
           <h2 className="font-bold text-gray-800">Bedburg {selectedStreet?.OrtsteilName?.replace('Bedburg/', '')}</h2>
           <p className="text-xs text-gray-500">{selectedStreet?.Name} {houseNr}</p>
@@ -458,14 +462,34 @@ export default function Home() {
                 </div>
               )}
 
-              {viewMode === 'week' && <WeeklyView collections={collections} />}
               {viewMode === 'month' && <CalendarView collections={collections} />}
               {viewMode === 'year' && <YearlyView collections={collections} />}
             </div>
           </>
         )}
       </main>
+      </div>
+    ) : (
+      <MuellAbc />
+    )}
+
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 pb-safe shadow-[0_-4px_10px_rgba(0,0,0,0.05)] flex justify-around z-50">
+      <button 
+        onClick={() => setActiveTab('calendar')}
+        className={`flex-1 py-3 font-bold text-xs flex flex-col items-center gap-1 transition-colors ${activeTab === 'calendar' ? 'text-green-600' : 'text-gray-400 hover:text-gray-600'}`}
+      >
+        <CalendarDays size={22} className={activeTab === 'calendar' ? 'drop-shadow-sm' : ''} />
+        Kalender
+      </button>
+      <button 
+        onClick={() => setActiveTab('abc')}
+        className={`flex-1 py-3 font-bold text-xs flex flex-col items-center gap-1 transition-colors ${activeTab === 'abc' ? 'text-green-600' : 'text-gray-400 hover:text-gray-600'}`}
+      >
+        <BookA size={22} className={activeTab === 'abc' ? 'drop-shadow-sm' : ''} />
+        Müll-ABC
+      </button>
     </div>
+    </>
   );
 }
 
